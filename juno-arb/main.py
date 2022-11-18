@@ -8,6 +8,7 @@ import httpx
 import logging
 import requests
 import functools
+import os
 
 # Skip helper library Import
 import skip
@@ -34,13 +35,14 @@ logging.basicConfig(filename='skip_response.log', encoding='utf-8', level=loggin
 
 # Mnenomic to generate private key
 # Replace with your own mnemonic
-MNEMONIC = "<your mnemonic>"
+# Or you can set up on environment variable called MNEMONIC
+MNEMONIC = os.getenv("MNEMONIC", "your mnemonic here")
 
 # RPC URL to stream mempool and query contract state from
-RPC_URL = "https://rpc-juno-ia.cosmosia.notional.ventures/"
+RPC_URL = os.getenv("RPC_URL", "https://rpc-juno-ia.cosmosia.notional.ventures/")
 
 # Rest URL to use to get a network client from cosmpy 
-REST_URL = "https://api-juno-ia.cosmosia.notional.ventures/"
+REST_URL = os.getenv("REST_URL", "https://api-juno-ia.cosmosia.notional.ventures/")
 
 # Chain ID of network, to be used for network client
 # You can find chain IDs at https://github.com/cosmos/chain-registry
@@ -98,7 +100,8 @@ async def main():
     seed_bytes = Bip39SeedGenerator(MNEMONIC).Generate()
     bip44_def_ctx = Bip44.FromSeed(seed_bytes, Bip44Coins.COSMOS).DeriveDefaultPath()
     wallet = LocalWallet(PrivateKey(bip44_def_ctx.PrivateKey().Raw().ToBytes()), prefix=ADDRESS_PREFIX)
-
+    print("Wallet address: {}".format(wallet.address()))
+    
     # This repo pre-populates a json file with contract
     # addresses for DEX pools (Junoswap and Loop), 
     # metadata on each pool used throughout the bot,
